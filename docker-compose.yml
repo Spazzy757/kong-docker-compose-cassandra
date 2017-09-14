@@ -27,6 +27,7 @@ services:
   # Kong
   kong:
     image: kong:0.11.0
+    env_file: environment/kong.env
     depends_on:
       - kong-database
       - kong-migration
@@ -37,9 +38,25 @@ services:
       - ./config/kong_config.yml:/etc/kong/kong.yml
     networks:
       - default
-    env_file: environment/kong.env
 
+  # Konga
+  konga:
+    image: pantsel/konga:next
+    networks:
+      - default
+    env_file: ./environment/kong.env
+    depends_on:
+      - kong
+    ports:
+      - '8999:1337'
+  mongo:
+    image: mongo
+    networks:
+      - default
+    volumes:
+      - 'mongo_data:/data/db'
 volumes:
   db-data-kong-cassandra:
+  mongo_data:
 networks:
   default:

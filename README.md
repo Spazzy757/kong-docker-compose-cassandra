@@ -31,3 +31,16 @@ curl <docker ip>:8001
 > This should return the kong admin information
 
 This is a very simple example of a kong 0.11.0 implementation
+
+## KONGA UI
+
+By default konga will be found on <docker ip>:8999, when running konga the first
+time set NODE_ENV=development (./environments/kong.env), this will run the konga migrations,
+once done run it with NODE_ENV=production
+
+**Access**
+```text
+username: admin
+password: adminadminadmin
+```
+> This is the default admin username and password
