@@ -1,0 +1,45 @@
+version: '3.3'
+services:
+  # Kong Database
+  kong-database:
+    image: cassandra:3.11
+    env_file: environment/kong.env
+    volumes:
+      - "db-data-kong-cassandra:/var/lib/cassandra"
+    networks:
+      - default
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  # Kong Migrations
+  kong-migration:
+    image: kong:0.11.0
+    depends_on:
+      - kong-database
+    networks:
+      - default
+    volumes:
+      - ./scripts/wait-for-it.sh:/wait-for-it.sh
+    env_file: environment/kong.env
+    command: ["/wait-for-it.sh", "kong-database:9042", "--", "kong migrations up"]
+
+  # Kong
+  kong:
+    image: kong:0.11.0
+    depends_on:
+      - kong-database
+      - kong-migration
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    volumes:
+      - ./config/kong_config.yml:/etc/kong/kong.yml
+    networks:
+      - default
+    env_file: environment/kong.env
+
+volumes:
+  db-data-kong-cassandra:
+networks:
+  default:
